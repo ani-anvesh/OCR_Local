@@ -21,7 +21,12 @@ def sort_tokens_reading_order(tokens: Sequence[OCRToken]) -> List[OCRToken]:
     if not tokens:
         return []
 
-    centers = np.array([_bbox_center(token.bbox) for token in tokens])
+    valid_tokens = [token for token in tokens if token.bbox]
+    if not valid_tokens:
+        # Nothing to reorder, preserve original sequence
+        return list(tokens)
+
+    centers = np.array([_bbox_center(token.bbox) for token in valid_tokens])
     x_coords = centers[:, 0]
     width = x_coords.max() - x_coords.min()
     if width == 0:
@@ -30,7 +35,8 @@ def sort_tokens_reading_order(tokens: Sequence[OCRToken]) -> List[OCRToken]:
     column_break = 0.5
     left = []
     right = []
-    for token, x in zip(tokens, normalized_x):
+    tokens_with_bbox = valid_tokens
+    for token, x in zip(tokens_with_bbox, normalized_x):
         if x < column_break:
             left.append(token)
         else:
@@ -38,8 +44,10 @@ def sort_tokens_reading_order(tokens: Sequence[OCRToken]) -> List[OCRToken]:
 
     if not left or not right:
         # Single column assumption
-        ordered = sorted(tokens, key=lambda t: (_bbox_center(t.bbox)[1], _bbox_center(t.bbox)[0]))
-        return ordered
+        ordered_valid = sorted(
+            tokens_with_bbox, key=lambda t: (_bbox_center(t.bbox)[1], _bbox_center(t.bbox)[0])
+        )
+        return ordered_valid
 
     left_sorted = sorted(left, key=lambda t: (_bbox_center(t.bbox)[1], _bbox_center(t.bbox)[0]))
     right_sorted = sorted(right, key=lambda t: (_bbox_center(t.bbox)[1], _bbox_center(t.bbox)[0]))
@@ -57,7 +65,11 @@ def analyze_layout(tokens: Sequence[OCRToken]) -> LayoutMetadata:
     if not tokens:
         return LayoutMetadata(columns=0, notes=["no tokens"])
 
-    centers = np.array([_bbox_center(token.bbox) for token in tokens])
+    valid_tokens = [token for token in tokens if token.bbox]
+    if not valid_tokens:
+        centers = np.array([[idx, idx] for idx in range(len(tokens))], dtype=float)
+    else:
+        centers = np.array([_bbox_center(token.bbox) for token in tokens])
     xs = centers[:, 0]
     width = xs.max() - xs.min()
     if width == 0:
@@ -75,7 +87,10 @@ def analyze_layout(tokens: Sequence[OCRToken]) -> LayoutMetadata:
 
 def _bbox_center(bbox):
     # BBox is list of 4 tuples (x, y)
-    xs = [point[0] for point in bbox]
-    ys = [point[1] for point in bbox]
+    if not bbox:
+        return (0.0, 0.0)
+    xs = [point[0] for point in bbox if isinstance(point, (list, tuple)) and len(point) == 2]
+    ys = [point[1] for point in bbox if isinstance(point, (list, tuple)) and len(point) == 2]
+    if not xs or not ys:
+        return (0.0, 0.0)
     return (sum(xs) / len(xs), sum(ys) / len(ys))
-

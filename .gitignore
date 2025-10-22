@@ -210,3 +210,4 @@ __marimo__/
 tmp/
 outputs/
 logs/
+samples/*.pdf

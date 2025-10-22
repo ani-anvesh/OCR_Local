@@ -43,8 +43,10 @@ class ResumeExtractor:
             layout_notes=layout_notes,
             schema=self.schema,
         )
+        logger.debug("LLM prompt:\n%s", prompt)
         try:
             response = self.llm_client.extract(prompt)
+            logger.debug("LLM parsed response: %s", response)
             document = self._parse_response(response)
             return ExtractionResult(document=document, raw_response=response, prompt=prompt)
         except LLMExtractionError as exc:
@@ -89,7 +91,9 @@ class ResumeExtractor:
             "email": validators.extract_email(raw_text),
             "phone": validators.extract_phone(raw_text),
         }
+        logger.debug("Fallback contact info %s", contact)
         skills = self._guess_skills(raw_text)
+        logger.debug("Fallback skills detected: %s", skills)
         document = ResumeDocument(
             contact=contact,
             skills=skills,
@@ -139,4 +143,3 @@ def re_split_skills(segment: str) -> List[str]:
     import re
 
     return [part for part in re.split(r"[•,;|]", segment) if part]
-

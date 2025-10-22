@@ -21,9 +21,15 @@ def build_prompt(
     with template_path.open("r", encoding="utf-8") as handle:
         template = handle.read()
 
-    sorted_tokens = sorted(
-        tokens, key=lambda t: (t.page, t.bbox[0][1] if t.bbox else 0, t.bbox[0][0])
-    )
+    def _token_sort_key(token):
+        if token.bbox:
+            first = token.bbox[0]
+            if isinstance(first, (list, tuple)) and len(first) == 2:
+                return (token.page, float(first[1]), float(first[0]))
+        # fallback on sequence order using enumerate
+        return (token.page, 0.0, 0.0)
+
+    sorted_tokens = sorted(tokens, key=_token_sort_key)
     raw_lines = [token.text for token in sorted_tokens]
     raw_text = "\n".join(raw_lines)
 
@@ -41,4 +47,3 @@ def build_prompt(
         schema=schema_section,
     )
     return prompt
-

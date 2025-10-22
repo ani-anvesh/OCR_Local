@@ -11,7 +11,7 @@
    - Detect columns and reading order via connected components.
    - Capture region metadata for tables, headers, and icon clusters.
 4. **OCR**
-   - Default to `PaddleOCR` for detection + recognition.
+   - Default to `PaddleOCR` for detection + recognition (fallback available via Tesseract).
    - Optional fallback to `pytesseract` to improve recall.
 5. **Entity Extraction**
    - Build structured prompt containing OCR text + layout hints.

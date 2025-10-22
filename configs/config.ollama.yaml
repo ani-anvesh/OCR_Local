@@ -10,18 +10,17 @@ enable_icon_mapping: true
 
 ocr:
   lang: en
-  engine: paddle
-  enable_angle_cls: false
+  engine: tesseract
+  enable_angle_cls: true
   cls_batch_num: 30
   rec_batch_num: 6
-  model_root: ~/.paddlex/official_models
 
 llm:
   endpoint: http://127.0.0.1:11434/v1/chat/completions
   api_key_env: LLM_API_KEY
   model: mistral
   temperature: 0.0
-  timeout_seconds: 120
+  timeout_seconds: 45
   max_retries: 3
   request_mode: chat-completions
   system_prompt: |

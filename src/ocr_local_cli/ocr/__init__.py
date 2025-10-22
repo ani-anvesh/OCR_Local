@@ -1,7 +1,6 @@
 """OCR engine abstractions."""
 
 from .base import BaseOCREngine, OCRToken
-from .paddle_client import PaddleOCREngine
+from .tesseract_client import TesseractOCREngine
 
-__all__ = ["BaseOCREngine", "OCRToken", "PaddleOCREngine"]
-
+__all__ = ["BaseOCREngine", "OCRToken", "TesseractOCREngine"]

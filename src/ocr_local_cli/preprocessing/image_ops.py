@@ -4,17 +4,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
+import cv2
 import numpy as np
-
-try:
-    import cv2
-except ImportError as exc:  # pragma: no cover - optional dependency
-    raise ImportError("OpenCV (opencv-python) is required for preprocessing.") from exc
+from PIL import Image
 
 
 @dataclass
 class PreprocessResult:
-    image: np.ndarray
+    image: Image.Image
     rotation: float = 0.0
     note: Optional[str] = None
 
@@ -74,13 +71,10 @@ def enhance_contrast(image: np.ndarray) -> np.ndarray:
 
 
 def preprocess_for_ocr(path: Path) -> PreprocessResult:
-    """
-    Load and apply deskew + denoise + threshold operations ready for OCR.
-    """
     original = load_image(path)
     deskewed, angle = deskew(original)
     denoised = denoise(deskewed)
     enhanced = enhance_contrast(denoised)
     binary = adaptive_threshold(enhanced)
-    return PreprocessResult(image=binary, rotation=angle)
-
+    pil_image = Image.fromarray(binary)
+    return PreprocessResult(image=pil_image, rotation=angle)

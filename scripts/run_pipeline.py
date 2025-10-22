@@ -50,11 +50,10 @@ def main() -> None:
     for input_path in args.inputs:
         path = Path(input_path)
         result = pipeline.run(path)
-        output_path = args.output_dir / f\"{path.stem}.json\"
-        output_path.write_text(json.dumps(result.document, indent=2), encoding=\"utf-8\")
-        print(f\"Processed {path} -> {output_path}\")
+        output_path = args.output_dir / f"{path.stem}.json"
+        output_path.write_text(json.dumps(result.document, indent=2), encoding="utf-8")
+        print(f"Processed {path} -> {output_path}")
 
 
-if __name__ == \"__main__\":
+if __name__ == "__main__":
     main()
-

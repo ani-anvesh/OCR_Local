@@ -17,10 +17,11 @@ class OCRConfig:
     """OCR engine configuration options."""
 
     lang: str = "en"
-    use_gpu: bool = False
+    engine: str = "paddle"
     enable_angle_cls: bool = True
     cls_batch_num: int = 30
     rec_batch_num: int = 6
+    model_root: Optional[str] = None
 
 
 @dataclass
@@ -132,12 +133,13 @@ def load_config(path: Optional[Path] = None) -> PipelineConfig:
         ),
         ocr=OCRConfig(
             lang=ocr_data.get("lang", defaults.ocr.lang),
-            use_gpu=ocr_data.get("use_gpu", defaults.ocr.use_gpu),
+            engine=ocr_data.get("engine", defaults.ocr.engine),
             enable_angle_cls=ocr_data.get(
                 "enable_angle_cls", defaults.ocr.enable_angle_cls
             ),
             cls_batch_num=ocr_data.get("cls_batch_num", defaults.ocr.cls_batch_num),
             rec_batch_num=ocr_data.get("rec_batch_num", defaults.ocr.rec_batch_num),
+            model_root=ocr_data.get("model_root", defaults.ocr.model_root),
         ),
         llm=LLMConfig(
             endpoint=llm_data.get("endpoint", defaults.llm.endpoint),

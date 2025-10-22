@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
@@ -57,6 +58,7 @@ class LLMClient:
         return payload
 
     def _post(self, payload: Dict[str, Any]) -> requests.Response:
+        logger.debug("LLM request payload: %s", payload)
         response = requests.post(
             self.config.endpoint,
             headers=self._headers(),
@@ -67,6 +69,7 @@ class LLMClient:
             raise LLMExtractionError(
                 f"LLM call failed with status {response.status_code}: {response.text}"
             )
+        logger.debug("LLM raw response text: %s", response.text)
         return response
 
     def extract(self, prompt: str) -> Dict[str, Any]:
@@ -108,15 +111,46 @@ class LLMClient:
             )
             if not isinstance(content, str):
                 raise LLMExtractionError("LLM response choices did not include text content.")
-            try:
-                return json.loads(content)
-            except json.JSONDecodeError as exc:
-                raise LLMExtractionError("LLM choices content was not valid JSON.") from exc
+            parsed = self._extract_json_payload(content)
+            if parsed is None:
+                raise LLMExtractionError("LLM choices content was not valid JSON.")
+            return parsed
 
         if "response" in data and isinstance(data["response"], str):
-            try:
-                return json.loads(data["response"])
-            except json.JSONDecodeError as exc:
-                raise LLMExtractionError("LLM string response was not valid JSON.") from exc
+            parsed = self._extract_json_payload(data["response"])
+            if parsed is None:
+                raise LLMExtractionError("LLM string response was not valid JSON.")
+            return parsed
 
         return data
+
+    @staticmethod
+    def _extract_json_payload(text: str) -> Optional[Dict[str, Any]]:
+        """Extract the last JSON object embedded in text (handles fenced code blocks)."""
+
+        if not text:
+            return None
+
+        candidates = re.findall(r"```(?:json)?\s*(\{.*?\})\s*```", text, flags=re.DOTALL)
+        if not candidates:
+            simple_matches = re.findall(r"(\{[^{}]*\})", text)
+            candidates.extend(simple_matches)
+            if not candidates:
+                # manual brace matching to capture larger JSON blocks
+                stack = []
+                segments = []
+                for idx, char in enumerate(text):
+                    if char == "{":
+                        stack.append(idx)
+                    elif char == "}" and stack:
+                        start = stack.pop()
+                        if not stack:
+                            segments.append(text[start : idx + 1])
+                candidates.extend(segments)
+
+        for candidate in reversed(candidates):  # prefer the last JSON block (likely the data)
+            try:
+                return json.loads(candidate)
+            except json.JSONDecodeError:
+                continue
+        return None
