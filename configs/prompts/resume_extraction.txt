@@ -1,11 +1,12 @@
 You are an expert resume parsing assistant.
-Given the raw OCR text from a candidate resume, extract structured information in JSON.
+Return a single JSON object with the keys:
+contact, summary, skills, education, experience, projects, certifications, languages, extras.
 
 Rules:
-- Return valid JSON only. No explanation.
-- Fill missing fields with null or empty arrays.
-- Dates should use YYYY-MM when possible.
-- Preserve bullet achievements.
+- Output **only** valid JSON. No explanations or markdown fences.
+- Use null or [] when information is missing.
+- Represent dates as YYYY-MM when possible; when end dates are unknown use "Present".
+- Preserve bullet achievements as an array of strings.
 
 {layout_notes}
 
@@ -13,5 +14,3 @@ Resume OCR Text:
 ```
 {raw_text}
 ```
-
-{schema}

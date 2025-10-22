@@ -22,6 +22,7 @@ class OCRConfig:
     cls_batch_num: int = 30
     rec_batch_num: int = 6
     model_root: Optional[str] = None
+    cpu_threads: int = 1
 
 
 @dataclass
@@ -140,6 +141,7 @@ def load_config(path: Optional[Path] = None) -> PipelineConfig:
             cls_batch_num=ocr_data.get("cls_batch_num", defaults.ocr.cls_batch_num),
             rec_batch_num=ocr_data.get("rec_batch_num", defaults.ocr.rec_batch_num),
             model_root=ocr_data.get("model_root", defaults.ocr.model_root),
+            cpu_threads=ocr_data.get("cpu_threads", defaults.ocr.cpu_threads),
         ),
         llm=LLMConfig(
             endpoint=llm_data.get("endpoint", defaults.llm.endpoint),

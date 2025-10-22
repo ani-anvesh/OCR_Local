@@ -128,6 +128,7 @@ class ResumeOCRPipeline:
                     model_root=Path(self.config.ocr.model_root).expanduser()
                     if self.config.ocr.model_root
                     else None,
+                    cpu_threads=self.config.ocr.cpu_threads,
                 )
             except Exception as exc:  # pragma: no cover - fallback path
                 logger.warning(

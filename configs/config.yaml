@@ -15,6 +15,7 @@ ocr:
   cls_batch_num: 30
   rec_batch_num: 6
   model_root: ~/.paddlex/official_models
+  cpu_threads: 1
 
 llm:
   endpoint: http://127.0.0.1:11434/v1/chat/completions
@@ -26,4 +27,4 @@ llm:
   request_mode: chat-completions
   system_prompt: |
     You are an expert resume parsing assistant. Use the user's prompt to extract resume information as strict JSON.
-  enforce_json: false
+  enforce_json: true

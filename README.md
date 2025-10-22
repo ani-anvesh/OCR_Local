@@ -37,7 +37,7 @@ tests/                  # Basic smoke test for schema
    ```bash
    python -m venv .venv
    source .venv/bin/activate
-   pip install -e .[dev]
+   pip install -e '.[dev,paddle3]'
    ```
 3. **Configure LLM endpoint**
    - Update `configs/config.yaml` with your extraction endpoint.
@@ -56,8 +56,9 @@ tests/                  # Basic smoke test for schema
 
 ### Switching OCR Engines
 
-- PaddleOCR offers the highest accuracy but pulls larger models. Set `ocr.engine: paddle` if you have the Paddle runtime working; the default config now uses Tesseract for maximum compatibility.
-- With the default Tesseract configuration, ensure the `tesseract` binary is installed and on your PATH (`brew install tesseract`).
+- PaddleOCR offers the highest accuracy but pulls larger models. Install with `pip install -e '.[dev,paddle3]'` and leave `ocr.engine: paddle` in `configs/config.yaml`.
+- To test the lighter Tesseract backend (no Paddle runtime), install with `pip install -e '.[dev,paddle2]'` and set `ocr.engine: tesseract`.
+- With Tesseract enabled, ensure the `tesseract` binary is installed and on your PATH (`brew install tesseract`).
 
 ## Usage
 
@@ -100,4 +101,5 @@ pytest
 <!-- export OMP_NUM_THREADS=1
 export MKL_SERVICE_FORCE_INTEL=1
 export KMP_DUPLICATE_LIB_OK=TRUE   # only if MKL complains
+rm -rf ~/.paddlex/official_models
  -->

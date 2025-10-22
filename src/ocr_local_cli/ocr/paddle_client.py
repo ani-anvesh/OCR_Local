@@ -26,6 +26,7 @@ class PaddleOCREngine(BaseOCREngine):
     cls_batch_num: int = 30
     rec_batch_num: int = 6
     model_root: Optional[Path] = None
+    cpu_threads: int = 1
 
     def __post_init__(self) -> None:
         if PaddleOCR is None:
@@ -33,14 +34,21 @@ class PaddleOCREngine(BaseOCREngine):
                 "PaddleOCR is not available. Install paddleocr to use this backend."
             )
         import os
+        import paddle
 
         os.environ.setdefault("PADDLEX_OFFLINE_MODE", "1")
+        os.environ.setdefault("OMP_NUM_THREADS", str(max(1, self.cpu_threads)))
+        os.environ.setdefault("MKL_NUM_THREADS", str(max(1, self.cpu_threads)))
+        os.environ.setdefault("MKL_SERVICE_FORCE_INTEL", "1")
+        os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "True")
+        paddle.device.set_device("cpu")
         model_kwargs = self._model_dirs()
         self._client = PaddleOCR(
             use_angle_cls=self.enable_angle_cls,
             lang=self.lang,
             cls_batch_num=self.cls_batch_num,
             rec_batch_num=self.rec_batch_num,
+            cpu_threads=self.cpu_threads,
             **model_kwargs,
         )
 
@@ -135,7 +143,6 @@ class PaddleOCREngine(BaseOCREngine):
         except (TypeError, ValueError):
             return 0.0
 
-    @staticmethod
     @staticmethod
     def _looks_like_bbox(obj) -> bool:
         if not isinstance(obj, (list, tuple)):
