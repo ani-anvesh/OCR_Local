@@ -1,0 +1,28 @@
+dpi: 300
+min_confidence: 0.65
+fallback_confidence: 0.3
+tmp_dir: tmp
+schema_path: configs/resume_schema.json
+prompt_template_path: configs/prompts/resume_extraction.txt
+skill_taxonomy_path: configs/skills_taxonomy.json
+enable_layout_analysis: true
+enable_icon_mapping: true
+
+ocr:
+  lang: en
+  use_gpu: false
+  enable_angle_cls: true
+  cls_batch_num: 30
+  rec_batch_num: 6
+
+llm:
+  endpoint: http://localhost:11434/v1/chat/completions
+  api_key_env: LLM_API_KEY
+  model: mistral
+  temperature: 0.0
+  timeout_seconds: 45
+  max_retries: 3
+  request_mode: chat-completions
+  system_prompt: |
+    You are an expert resume parsing assistant. Use the user's prompt to extract resume information as strict JSON.
+  enforce_json: false

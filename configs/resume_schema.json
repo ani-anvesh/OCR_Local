@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ResumeDocument",
+  "type": "object",
+  "properties": {
+    "contact": {
+      "type": "object",
+      "properties": {
+        "name": { "type": ["string", "null"] },
+        "email": { "type": ["string", "null"], "format": "email" },
+        "phone": { "type": ["string", "null"] },
+        "location": { "type": ["string", "null"] },
+        "linkedin": { "type": ["string", "null"], "format": "uri" },
+        "website": { "type": ["string", "null"], "format": "uri" }
+      },
+      "additionalProperties": false
+    },
+    "summary": { "type": ["string", "null"] },
+    "skills": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "institution": { "type": "string" },
+          "degree": { "type": ["string", "null"] },
+          "major": { "type": ["string", "null"] },
+          "start": { "type": ["string", "null"] },
+          "end": { "type": ["string", "null"] },
+          "details": { "type": ["string", "null"] }
+        },
+        "required": ["institution"],
+        "additionalProperties": false
+      }
+    },
+    "experience": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "company": { "type": "string" },
+          "role": { "type": ["string", "null"] },
+          "start": { "type": ["string", "null"] },
+          "end": { "type": ["string", "null"] },
+          "achievements": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["company"],
+        "additionalProperties": false
+      }
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": ["string", "null"] },
+          "technologies": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["name"],
+        "additionalProperties": false
+      }
+    },
+    "certifications": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "languages": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "extras": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": ["contact", "skills", "education", "experience"],
+  "additionalProperties": false
+}
+
