@@ -22,6 +22,11 @@ HEADING_CANDIDATES = {
     "LANGUAGES": "LANGUAGES",
 }
 
+DATE_PATTERN = re.compile(
+    r"((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+\d{4})|\b\d{4}\b",
+    re.IGNORECASE,
+)
+
 
 def _center(token: OCRToken) -> tuple[float, float]:
     if token.bbox:
@@ -86,6 +91,7 @@ def format_tokens_as_text(tokens: Sequence[OCRToken]) -> str:
             sections.append("")  # blank line between pages
 
         current_heading = None
+        last_structured_entry = False
         for line_tokens in lines:
             line_text = " ".join(_normalise_token_text(tok.text) for tok in line_tokens if tok.text).strip()
             if not line_text:
@@ -97,12 +103,39 @@ def format_tokens_as_text(tokens: Sequence[OCRToken]) -> str:
                     sections.append("")
                 sections.append(f"{heading}:")
                 current_heading = heading
+                last_structured_entry = False
                 continue
 
-            if current_heading == "SKILLS" and not line_text.endswith(":"):
-                sections.append(_format_skill_line(line_text))
-            else:
-                sections.append(line_text)
+            trimmed = _strip_leading_bullet(line_text)
+
+            if current_heading == "SKILLS" and not trimmed.endswith(":"):
+                sections.append(_format_skill_line(trimmed))
+                continue
+
+            if current_heading == "WORK EXPERIENCE":
+                if _looks_like_job_header(trimmed):
+                    sections.append(f"- {trimmed}")
+                    last_structured_entry = True
+                else:
+                    prefix = "  - " if last_structured_entry else "- "
+                    sections.append(prefix + trimmed)
+                continue
+
+            if current_heading == "EDUCATION":
+                if _looks_like_education_entry(trimmed):
+                    sections.append(f"- {trimmed}")
+                    last_structured_entry = True
+                else:
+                    prefix = "  - " if last_structured_entry else "- "
+                    sections.append(prefix + trimmed)
+                continue
+
+            if current_heading in {"PROJECTS", "CERTIFICATIONS", "LANGUAGES"}:
+                sections.append(f"- {trimmed}")
+                last_structured_entry = True
+                continue
+
+            sections.append(trimmed)
 
     # collapse duplicate adjacent lines while maintaining order
     seen = set()
@@ -118,6 +151,32 @@ def format_tokens_as_text(tokens: Sequence[OCRToken]) -> str:
     return "\n".join(filtered_sections).strip()
 
 
+def _strip_leading_bullet(text: str) -> str:
+    cleaned = re.sub(r'^\s*[•‣▪●\-\–\—]+\s*', '', text, count=1)
+    return cleaned if cleaned else text.strip()
+
+
+def _contains_date(text: str) -> bool:
+    return bool(DATE_PATTERN.search(text))
+
+
+def _looks_like_job_header(text: str) -> bool:
+    if '|' not in text:
+        return False
+    parts = [segment.strip() for segment in text.split('|') if segment.strip()]
+    if len(parts) < 2:
+        return False
+    return _contains_date(text)
+
+
+def _looks_like_education_entry(text: str) -> bool:
+    if '|' in text and _contains_date(text):
+        return True
+    upper = text.upper()
+    keywords = ("UNIVERSITY", "COLLEGE", "INSTITUTE", "BACHELOR", "MASTER", "GPA")
+    return any(word in upper for word in keywords)
+
+
 def _format_skill_line(text: str) -> str:
     parts = [seg.strip(" -•\t") for seg in re.split(r"[,;\u2022\|]", text) if seg.strip()]
     if not parts:
@@ -130,7 +189,15 @@ def _format_skill_line(text: str) -> str:
 
 
 def _normalise_token_text(text: str) -> str:
-    return re.sub(r"\s+", " ", text).strip()
+    cleaned = re.sub(r"\s+", " ", text).strip()
+    cleaned = cleaned.replace("–", "-").replace("—", "-")
+    cleaned = re.sub(r"(?<=\w)&(?=\w)", " & ", cleaned)
+    cleaned = re.sub(r"([a-z])([A-Z])", r"\1 \2", cleaned)
+    cleaned = re.sub(r"([.,;:/])(?=\S)", r"\1 ", cleaned)
+    cleaned = re.sub(r"(?<=\d)(?=[A-Za-z])", " ", cleaned)
+    cleaned = re.sub(r"(?<=[A-Za-z])(?=\d)", " ", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    return cleaned
 
 
 def build_prompt(
