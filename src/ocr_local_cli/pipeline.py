@@ -96,12 +96,11 @@ class ResumeOCRPipeline:
         for idx, image_path in enumerate(iter_image_paths(path)):
             if self.config.enable_preprocessing:
                 preprocess_result = preprocess_for_ocr(image_path)
-                image_to_save = preprocess_result.image
+                tmp_path = self.config.tmp_dir / f"{image_path.stem}_processed_{idx:03d}.png"
+                preprocess_result.image.save(str(tmp_path))
+                prepared_paths.append(str(tmp_path))
             else:
-                image_to_save = Image.open(image_path).convert("RGB")
-            tmp_path = self.config.tmp_dir / f"{image_path.stem}_processed_{idx:03d}.png"
-            image_to_save.save(str(tmp_path))
-            prepared_paths.append(str(tmp_path))
+                prepared_paths.append(str(image_path))
         if not prepared_paths:
             raise FileNotFoundError(f"No images found for {path}")
         return prepared_paths
