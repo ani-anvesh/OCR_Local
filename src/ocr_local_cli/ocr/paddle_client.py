@@ -307,7 +307,9 @@ class PaddleOCREngine(BaseOCREngine):
             root / "en_PP-OCRv4_rec",
         ]
         rec_server = [
+            root / "PP-OCRv5_server_rec",
             root / "en_PP-OCRv5_server_rec",
+            root / "PP-OCRv4_server_rec",
             root / "en_PP-OCRv4_server_rec",
         ]
         cls_candidates = [
@@ -321,7 +323,7 @@ class PaddleOCREngine(BaseOCREngine):
             det_candidates = det_server + det_mobile
             rec_candidates = rec_server + rec_mobile
             default_det = "PP-OCRv5_server_det"
-            default_rec = "en_PP-OCRv5_server_rec"
+            default_rec = "PP-OCRv5_server_rec"
         elif variant == "mobile":
             det_candidates = det_mobile + det_server
             rec_candidates = rec_mobile + rec_server
