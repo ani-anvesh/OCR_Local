@@ -155,15 +155,15 @@ class PaddleOCREngine(BaseOCREngine):
             else:
                 text, confidence = self._parse_info_block(result)
         elif isinstance(result, dict):
-            bbox = self._normalize_bbox(
-                result.get("box")
-                or result.get("bbox")
-                or result.get("points")
-                or result.get("rec_polys")
-                or result.get("rec_boxes")
-                or result.get("dt_polys")
-                or []
+            bbox_candidate = self._first_nonempty(
+                result.get("box"),
+                result.get("bbox"),
+                result.get("points"),
+                result.get("rec_polys"),
+                result.get("rec_boxes"),
+                result.get("dt_polys"),
             )
+            bbox = self._normalize_bbox(bbox_candidate)
             text, confidence = self._parse_info_block(result)
         else:
             text, confidence = self._parse_info_block(result)
