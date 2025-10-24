@@ -139,7 +139,6 @@ class ResumeOCRPipeline:
                     model_variant=self.config.ocr.model_variant,
                     use_doc_orientation_classify=self.config.ocr.use_doc_orientation_classify,
                     use_doc_unwarping=self.config.ocr.use_doc_unwarping,
-                    use_doc_preprocessor=self.config.ocr.use_doc_preprocessor,
                 )
             except Exception as exc:  # pragma: no cover - fallback path
                 logger.warning(

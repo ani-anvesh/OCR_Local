@@ -23,7 +23,6 @@ ocr:
   model_variant: mobile
   use_doc_orientation_classify: false
   use_doc_unwarping: false
-  use_doc_preprocessor: false
 
 llm:
   endpoint: http://127.0.0.1:11434/v1/chat/completions
