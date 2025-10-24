@@ -12,15 +12,17 @@ ocr:
   lang: en
   engine: paddle
   enable_angle_cls: false
-  cls_batch_num: 30
-  rec_batch_num: 6
+  cls_batch_num: 16
+  rec_batch_num: 2
   model_root: ~/.paddlex/official_models
   cpu_threads: 1
+  use_gpu: true
+  gpu_id: 0
 
 llm:
   endpoint: http://127.0.0.1:11434/v1/chat/completions
   api_key_env: LLM_API_KEY
-  model: mistral
+  model: gemma3:1b
   temperature: 0.0
   timeout_seconds: 120
   max_retries: 3

@@ -90,6 +90,11 @@ class ResumeExtractor:
         if not isinstance(payload, dict):
             raise ValueError("Response payload is not a dictionary")
 
+        allowed_keys = set(ResumeDocument.model_fields.keys())
+        unknown_keys = set(payload.keys()) - allowed_keys
+        if unknown_keys:
+            raise ValueError(f"Response contains unknown fields: {sorted(unknown_keys)}")
+
         document = ResumeDocument.model_validate(payload)
         document = self._enrich_document(document, raw_text, tokens)
         return document
