@@ -226,6 +226,33 @@ class PaddleOCREngine(BaseOCREngine):
         return text.strip(), confidence
 
     @staticmethod
+    def _first_nonempty(*candidates):
+        try:
+            import numpy as np
+        except ImportError:  # pragma: no cover
+            np = None
+        for candidate in candidates:
+            if candidate is None:
+                continue
+            if np is not None and isinstance(candidate, np.ndarray):
+                if candidate.size:
+                    return candidate
+                continue
+            if isinstance(candidate, (list, tuple)):
+                if not candidate:
+                    continue
+                if np is not None and all(
+                    isinstance(item, np.ndarray) and not item.size for item in candidate
+                ):
+                    continue
+                if any(item for item in candidate):
+                    return candidate
+                continue
+            if candidate:
+                return candidate
+        return []
+
+    @staticmethod
     def _to_float(value):
         try:
             import numpy as np
