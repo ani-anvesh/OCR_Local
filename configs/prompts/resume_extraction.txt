@@ -7,6 +7,19 @@ Rules:
 - Use null or [] when information is missing.
 - Represent dates as YYYY-MM when possible; when end dates are unknown use "Present".
 - Preserve bullet achievements as an array of strings.
+- contact must contain only: name, email, phone, location, linkedin, website.
+- Each education entry must contain: institution (required) and optionally degree, major, start, end, details. Split date ranges into start/end strings.
+- Each experience entry must contain: company (required), role, start, end, achievements (array). Move any bullet lists into achievements. Convert date ranges into start/end.
+- Projects entries must contain: name, description, technologies (array of strings).
+- The extras object may include any additional structured information not covered above.
+- Do not introduce keys other than the ones listed.
+- Reconstruct fragmented text into coherent sentences; combine adjacent fragments that clearly belong together and remove stray characters or repeated letters.
+- Deduplicate skills and achievements. Keep each skill as a concise noun phrase (e.g., "Spark", "TensorRT optimization").
+- Normalize casing (title case for proper nouns, lower-case for common skills) and strip punctuation artifacts.
+- If a date range appears as text (e.g., "Jun 2021 - Dec 2021"), emit it as separate `start` and `end` strings. Use `start` only if no end is present.
+- When information is implied but not explicitly stated (e.g., role/company duplicated across bullets), infer it conservatively and include it exactly once.
+- Order experience entries most-recent first; order education entries most-recent first.
+- If you cannot find a requested field, output `null` or `[]` exactly; do not invent data.
 
 {layout_notes}
 

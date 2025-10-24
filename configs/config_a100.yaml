@@ -27,7 +27,7 @@ ocr:
 llm:
   endpoint: http://127.0.0.1:11434/v1/chat/completions
   api_key_env: LLM_API_KEY
-  model: gemma3:4b
+  model: gemma3:27b
   temperature: 0.0
   timeout_seconds: 300
   max_retries: 3
