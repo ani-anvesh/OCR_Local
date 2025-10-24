@@ -8,6 +8,8 @@ skill_taxonomy_path: configs/skills_taxonomy.json
 enable_layout_analysis: true
 enable_icon_mapping: true
 
+enable_preprocessing: true
+
 ocr:
   lang: en
   engine: paddle
@@ -21,6 +23,7 @@ ocr:
   model_variant: mobile
   use_doc_orientation_classify: false
   use_doc_unwarping: false
+  use_doc_preprocessor: false
 
 llm:
   endpoint: http://127.0.0.1:11434/v1/chat/completions

@@ -28,6 +28,7 @@ class OCRConfig:
     model_variant: str = "mobile"
     use_doc_orientation_classify: bool = False
     use_doc_unwarping: bool = False
+    use_doc_preprocessor: bool = True
 
 
 @dataclass
@@ -63,6 +64,7 @@ class PipelineConfig:
     skill_taxonomy_path: Optional[Path] = Path("configs/skills_taxonomy.json")
     enable_layout_analysis: bool = True
     enable_icon_mapping: bool = True
+    enable_preprocessing: bool = True
 
     ocr: OCRConfig = field(default_factory=OCRConfig)
     llm: LLMConfig = field(default_factory=LLMConfig)
@@ -80,6 +82,7 @@ class PipelineConfig:
             else None,
             "enable_layout_analysis": self.enable_layout_analysis,
             "enable_icon_mapping": self.enable_icon_mapping,
+            "enable_preprocessing": self.enable_preprocessing,
             "ocr": self.ocr.__dict__,
             "llm": {
                 "endpoint": self.llm.endpoint,
@@ -152,6 +155,7 @@ def load_config(path: Optional[Path] = None) -> PipelineConfig:
             model_variant=ocr_data.get("model_variant", defaults.ocr.model_variant),
             use_doc_orientation_classify=ocr_data.get("use_doc_orientation_classify", defaults.ocr.use_doc_orientation_classify),
             use_doc_unwarping=ocr_data.get("use_doc_unwarping", defaults.ocr.use_doc_unwarping),
+            use_doc_preprocessor=ocr_data.get("use_doc_preprocessor", defaults.ocr.use_doc_preprocessor),
         ),
         llm=LLMConfig(
             endpoint=llm_data.get("endpoint", defaults.llm.endpoint),

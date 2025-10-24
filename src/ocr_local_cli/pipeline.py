@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from PIL import Image
 from typing import Iterable, List, Optional, Sequence
 
 from .config import PipelineConfig, load_config, load_json_schema
@@ -93,9 +94,13 @@ class ResumeOCRPipeline:
     def _prepare_images(self, path: Path) -> List[str]:
         prepared_paths: List[str] = []
         for idx, image_path in enumerate(iter_image_paths(path)):
-            preprocess_result = preprocess_for_ocr(image_path)
+            if self.config.enable_preprocessing:
+                preprocess_result = preprocess_for_ocr(image_path)
+                image_to_save = preprocess_result.image
+            else:
+                image_to_save = Image.open(image_path).convert("RGB")
             tmp_path = self.config.tmp_dir / f"{image_path.stem}_processed_{idx:03d}.png"
-            preprocess_result.image.save(str(tmp_path))
+            image_to_save.save(str(tmp_path))
             prepared_paths.append(str(tmp_path))
         if not prepared_paths:
             raise FileNotFoundError(f"No images found for {path}")
@@ -134,6 +139,7 @@ class ResumeOCRPipeline:
                     model_variant=self.config.ocr.model_variant,
                     use_doc_orientation_classify=self.config.ocr.use_doc_orientation_classify,
                     use_doc_unwarping=self.config.ocr.use_doc_unwarping,
+                    use_doc_preprocessor=self.config.ocr.use_doc_preprocessor,
                 )
             except Exception as exc:  # pragma: no cover - fallback path
                 logger.warning(

@@ -9,7 +9,7 @@ import dateparser
 
 from ..config import PipelineConfig
 from ..ocr.base import OCRToken
-from ..schema import ResumeDocument, ExperienceItem, EducationItem
+from ..schema import ResumeDocument, ExperienceItem, EducationItem, ExperienceItem, EducationItem, ExperienceItem, EducationItem
 from ..utils.logging import get_logger
 from ..validation import validators
 from .llm_client import LLMClient, LLMExtractionError
