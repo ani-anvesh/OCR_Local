@@ -9,7 +9,7 @@ import dateparser
 
 from ..config import PipelineConfig
 from ..ocr.base import OCRToken
-from ..schema import ResumeDocument
+from ..schema import ResumeDocument, ExperienceItem, EducationItem
 from ..utils.logging import get_logger
 from ..validation import validators
 from .llm_client import LLMClient, LLMExtractionError
@@ -109,12 +109,15 @@ class ResumeExtractor:
         skills = self._guess_skills(raw_text)
         logger.debug("Fallback skills detected: %s", skills)
         education, experience = self._extract_structured_entries(raw_text)
+        typed_experience = [ExperienceItem(**item) for item in experience]
+        typed_education = [EducationItem(**item) for item in education]
+
         document = ResumeDocument(
             contact=contact,
             skills=skills,
             summary=self._guess_summary(raw_text),
-            experience=experience,
-            education=education,
+            experience=typed_experience,
+            education=typed_education,
             extras={"fallback": True},
         )
         return document
