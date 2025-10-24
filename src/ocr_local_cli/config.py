@@ -28,7 +28,6 @@ class OCRConfig:
     model_variant: str = "mobile"
     use_doc_orientation_classify: bool = False
     use_doc_unwarping: bool = False
-    use_doc_preprocessor: bool = True
 
 
 @dataclass
@@ -155,7 +154,6 @@ def load_config(path: Optional[Path] = None) -> PipelineConfig:
             model_variant=ocr_data.get("model_variant", defaults.ocr.model_variant),
             use_doc_orientation_classify=ocr_data.get("use_doc_orientation_classify", defaults.ocr.use_doc_orientation_classify),
             use_doc_unwarping=ocr_data.get("use_doc_unwarping", defaults.ocr.use_doc_unwarping),
-            use_doc_preprocessor=ocr_data.get("use_doc_preprocessor", defaults.ocr.use_doc_preprocessor),
         ),
         llm=LLMConfig(
             endpoint=llm_data.get("endpoint", defaults.llm.endpoint),

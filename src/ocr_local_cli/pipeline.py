@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import json
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
-from PIL import Image
 from typing import Iterable, List, Optional, Sequence
 
 from .config import PipelineConfig, load_config, load_json_schema
@@ -98,9 +98,10 @@ class ResumeOCRPipeline:
                 preprocess_result = preprocess_for_ocr(image_path)
                 tmp_path = self.config.tmp_dir / f"{image_path.stem}_processed_{idx:03d}.png"
                 preprocess_result.image.save(str(tmp_path))
-                prepared_paths.append(str(tmp_path))
             else:
-                prepared_paths.append(str(image_path))
+                tmp_path = self.config.tmp_dir / f"{image_path.stem}_original_{idx:03d}{image_path.suffix}"
+                shutil.copy(image_path, tmp_path)
+            prepared_paths.append(str(tmp_path))
         if not prepared_paths:
             raise FileNotFoundError(f"No images found for {path}")
         return prepared_paths

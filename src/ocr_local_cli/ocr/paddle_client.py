@@ -32,7 +32,6 @@ class PaddleOCREngine(BaseOCREngine):
     model_variant: str = "mobile"
     use_doc_orientation_classify: bool = False
     use_doc_unwarping: bool = False
-    use_doc_preprocessor: bool = True
 
     def __post_init__(self) -> None:
         if PaddleOCR is None:
@@ -62,7 +61,6 @@ class PaddleOCREngine(BaseOCREngine):
             text_recognition_batch_size=self.rec_batch_num,
             use_doc_orientation_classify=self.use_doc_orientation_classify,
             use_doc_unwarping=self.use_doc_unwarping,
-            use_doc_preprocessor=self.use_doc_preprocessor,
             cpu_threads=self.cpu_threads,
             device=device,
             **model_kwargs,
