@@ -20,7 +20,7 @@ Rules:
 - When information is implied but not explicitly stated (e.g., role/company duplicated across bullets), infer it conservatively and include it exactly once.
 - Order experience entries most-recent first; order education entries most-recent first.
 - If you cannot find a requested field, output `null` or `[]` exactly; do not invent data.
-
+- Return the JSON in the following template structure (replace values):\n```json\n{\n  "contact": {"name": null, "email": null, "phone": null, "location": null, "linkedin": null, "website": null},\n  "summary": null,\n  "skills": [],\n  "education": [\n    {"institution": "", "degree": null, "major": null, "start": null, "end": null, "details": null}\n  ],\n  "experience": [\n    {"company": "", "role": null, "start": null, "end": null, "achievements": []}\n  ],\n  "projects": [],\n  "certifications": [],\n  "languages": [],\n  "extras": {}\n}\n```\n- Remove empty objects/arrays only if there is truly no data; otherwise provide meaningful content.\n
 {layout_notes}
 
 Resume OCR Text:
