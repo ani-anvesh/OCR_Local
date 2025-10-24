@@ -1,3 +1,5 @@
+# High-capacity configuration tuned for A100 (80GB) GPUs
+# Copy or reference this file when running on large GPU instances.
 dpi: 300
 min_confidence: 0.65
 fallback_confidence: 0.3
@@ -11,23 +13,23 @@ enable_icon_mapping: true
 ocr:
   lang: en
   engine: paddle
-  enable_angle_cls: false
-  cls_batch_num: 16
-  rec_batch_num: 2
+  enable_angle_cls: true
+  cls_batch_num: 64
+  rec_batch_num: 16
   model_root: ~/.paddlex/official_models
-  cpu_threads: 1
+  cpu_threads: 8
   use_gpu: true
   gpu_id: 0
-  model_variant: mobile
-  use_doc_orientation_classify: false
-  use_doc_unwarping: false
+  model_variant: server
+  use_doc_orientation_classify: true
+  use_doc_unwarping: true
 
 llm:
   endpoint: http://127.0.0.1:11434/v1/chat/completions
   api_key_env: LLM_API_KEY
-  model: gemma3:1b
+  model: gemma3:4b
   temperature: 0.0
-  timeout_seconds: 120
+  timeout_seconds: 300
   max_retries: 3
   request_mode: chat-completions
   system_prompt: |

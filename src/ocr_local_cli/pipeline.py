@@ -131,6 +131,9 @@ class ResumeOCRPipeline:
                     cpu_threads=self.config.ocr.cpu_threads,
                     use_gpu=self.config.ocr.use_gpu,
                     gpu_id=self.config.ocr.gpu_id,
+                    model_variant=self.config.ocr.model_variant,
+                    use_doc_orientation_classify=self.config.ocr.use_doc_orientation_classify,
+                    use_doc_unwarping=self.config.ocr.use_doc_unwarping,
                 )
             except Exception as exc:  # pragma: no cover - fallback path
                 logger.warning(

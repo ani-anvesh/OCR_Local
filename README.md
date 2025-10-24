@@ -65,6 +65,11 @@ tests/                  # Basic smoke test for schema
 ```bash
 python scripts/run_pipeline.py samples/jane_doe_resume.pdf --verbose
 ```
+### GPU Profiles
+
+- `configs/config.yaml` targets constrained devices (Jetson) and defaults to the lighter PP-OCR mobile checkpoints.
+- `configs/config_a100.yaml` enables the larger server models, bigger batch sizes, and document unwarping tuned for 80GB GPUs such as the NVIDIA A100. Run with `python scripts/run_pipeline.py <pdf> --config configs/config_a100.yaml`.
+
 
 Results are saved as JSON files under `outputs/`.
 

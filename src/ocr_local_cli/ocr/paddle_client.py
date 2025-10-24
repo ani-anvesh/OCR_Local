@@ -29,6 +29,9 @@ class PaddleOCREngine(BaseOCREngine):
     cpu_threads: int = 1
     use_gpu: bool = False
     gpu_id: int = 0
+    model_variant: str = "mobile"
+    use_doc_orientation_classify: bool = False
+    use_doc_unwarping: bool = False
 
     def __post_init__(self) -> None:
         if PaddleOCR is None:
@@ -56,8 +59,8 @@ class PaddleOCREngine(BaseOCREngine):
             use_textline_orientation=self.enable_angle_cls,
             textline_orientation_batch_size=self.cls_batch_num,
             text_recognition_batch_size=self.rec_batch_num,
-            use_doc_orientation_classify=False,
-            use_doc_unwarping=False,
+            use_doc_orientation_classify=self.use_doc_orientation_classify,
+            use_doc_unwarping=self.use_doc_unwarping,
             cpu_threads=self.cpu_threads,
             device=device,
             **model_kwargs,
@@ -289,16 +292,23 @@ class PaddleOCREngine(BaseOCREngine):
         Build explicit model directory arguments to avoid repeated network checks.
         """
         root = self.model_root or Path.home() / ".paddlex" / "official_models"
-        det_candidates = [
+        det_mobile = [
             root / "PP-OCRv5_mobile_det",
             root / "en_PP-OCRv3_det",
             root / "en_PP-OCRv4_det",
-            root / "PP-OCRv5_server_det",
         ]
-        rec_candidates = [
+        det_server = [
+            root / "PP-OCRv5_server_det",
+            root / "PP-OCRv4_server_det",
+        ]
+        rec_mobile = [
             root / "en_PP-OCRv5_mobile_rec",
             root / "en_PP-OCRv3_rec",
             root / "en_PP-OCRv4_rec",
+        ]
+        rec_server = [
+            root / "en_PP-OCRv5_server_rec",
+            root / "en_PP-OCRv4_server_rec",
         ]
         cls_candidates = [
             root / "PP-LCNet_x1_0_textline_ori",
@@ -306,9 +316,25 @@ class PaddleOCREngine(BaseOCREngine):
             root / "PP-LCNet_x1_0_cls",
             root / "ch_ppocr_mobile_v2.0_cls",
         ]
+        variant = self.model_variant.lower()
+        if variant == "server":
+            det_candidates = det_server + det_mobile
+            rec_candidates = rec_server + rec_mobile
+            default_det = "PP-OCRv5_server_det"
+            default_rec = "en_PP-OCRv5_server_rec"
+        elif variant == "mobile":
+            det_candidates = det_mobile + det_server
+            rec_candidates = rec_mobile + rec_server
+            default_det = "PP-OCRv5_mobile_det"
+            default_rec = "en_PP-OCRv5_mobile_rec"
+        else:
+            det_candidates = det_mobile + det_server
+            rec_candidates = rec_mobile + rec_server
+            default_det = "PP-OCRv5_mobile_det"
+            default_rec = "en_PP-OCRv5_mobile_rec"
         kwargs = {
-            "text_detection_model_name": "PP-OCRv5_mobile_det",
-            "text_recognition_model_name": "en_PP-OCRv5_mobile_rec",
+            "text_detection_model_name": default_det,
+            "text_recognition_model_name": default_rec,
         }
         if self.enable_angle_cls:
             kwargs.setdefault("textline_orientation_model_name", "PP-LCNet_x1_0_textline_ori")
