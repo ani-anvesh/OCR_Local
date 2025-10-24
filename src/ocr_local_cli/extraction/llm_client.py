@@ -131,6 +131,13 @@ class LLMClient:
         if not text:
             return None
 
+        stripped = text.strip()
+        if stripped.startswith("{") and stripped.endswith("}"):
+            try:
+                return json.loads(stripped)
+            except json.JSONDecodeError:
+                pass
+
         candidates = re.findall(r"```(?:json)?\s*(\{.*?\})\s*```", text, flags=re.DOTALL)
         if not candidates:
             simple_matches = re.findall(r"(\{[^{}]*\})", text)
