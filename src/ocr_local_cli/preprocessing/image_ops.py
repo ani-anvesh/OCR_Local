@@ -42,8 +42,21 @@ def deskew(image: np.ndarray) -> tuple[np.ndarray, float]:
     else:
         angle = -angle
     (h, w) = image.shape[:2]
-    matrix = cv2.getRotationMatrix2D((w // 2, h // 2), angle, 1.0)
-    rotated = cv2.warpAffine(image, matrix, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
+    center = (w / 2.0, h / 2.0)
+    matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
+    abs_cos = abs(matrix[0, 0])
+    abs_sin = abs(matrix[0, 1])
+    new_w = int(h * abs_sin + w * abs_cos)
+    new_h = int(h * abs_cos + w * abs_sin)
+    matrix[0, 2] += new_w / 2.0 - center[0]
+    matrix[1, 2] += new_h / 2.0 - center[1]
+    rotated = cv2.warpAffine(
+        image,
+        matrix,
+        (new_w, new_h),
+        flags=cv2.INTER_CUBIC,
+        borderMode=cv2.BORDER_REPLICATE,
+    )
     return rotated, angle
 
 
@@ -75,6 +88,7 @@ def preprocess_for_ocr(path: Path) -> PreprocessResult:
     deskewed, angle = deskew(original)
     denoised = denoise(deskewed)
     enhanced = enhance_contrast(denoised)
-    binary = adaptive_threshold(enhanced)
-    pil_image = Image.fromarray(binary)
+    pil_image = Image.fromarray(enhanced)
+    if pil_image.mode != "RGB":
+        pil_image = pil_image.convert("RGB")
     return PreprocessResult(image=pil_image, rotation=angle)
